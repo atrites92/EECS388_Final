@@ -33,8 +33,7 @@ static void steering(int pos);
  *      Post condition: 
  *          Checks the LiDAR distance and configures LEDs
  *******************************************************************************/
-static void auto_brake()
-{
+static void auto_brake() {
   // Task-2: 
   // Your code goes here (Use Lab 2 & 4 for reference)
   // Check the project document to understand the task
@@ -73,16 +72,29 @@ static void auto_brake()
  *      Post condition: 
  *          Control the servomotor with GPIO_6
  *******************************************************************************/
-static void steering(int pos)
-{
-    // Task-4: 
-    // Your code goes here (Use Lab 05 for reference)
-    // Check the project document to understand the task
-    int pwm = SERVO_PULSE_MAX + ((pos * (SERVO_PULSE_MAX - SERVO_PULSE_MIN)) / 180);
-    gpio_write(GPIO_6, ON);
-    delay_us(pwm);
-    gpio_write(GPIO_6, OFF);
-    delay_us(SERVO_PERIOD - pwm);
+static void steering(int pos) {
+  // Task-4: 
+  // Your code goes here (Use Lab 05 for reference)
+  // Check the project document to understand the task
+
+  //Calculate pulse
+  int pwm = SERVO_PULSE_MIN + (pos * ((SERVO_PULSE_MAX - SERVO_PULSE_MIN) / 180));
+  //Steer
+  gpio_write(GPIO_6, ON);
+  delay_us(pwm);
+
+  //Delay remaining pulse (20ms)
+  gpio_write(GPIO_6, OFF);
+  if (pwm < 1000){
+    delay_ms(19);
+    delay_us(1000-pwm);
+  } else if (pwm < 2000){
+    delay_ms(18);
+    delay_us(2000-pwm);
+  } else {
+    delay_ms(17);
+    delay_us(3000-pwm);
+  }
 }
 
 /******************************************************************************
@@ -95,19 +107,18 @@ static void steering(int pos)
  *          I2C is initialized for communication with BMP180
  *          calib_data is filled with calibration data from BMP180
  *******************************************************************************/
-void setup() 
-{
-uart_init();     // Initialize UART for serial output
+void setup() {
+  uart_init();     // Initialize UART for serial output
 
-//Setup Auto-break LEDs for Distance
-gpio_mode(GPIO_13, GPIO_OUTPUT); //RED
-gpio_mode(GPIO_12, GPIO_OUTPUT); //GREEN
-gpio_mode(GPIO_11, GPIO_OUTPUT); //BLUE
+  //Setup Auto-break LEDs for Distance
+  gpio_mode(GPIO_13, GPIO_OUTPUT); //RED
+  gpio_mode(GPIO_12, GPIO_OUTPUT); //GREEN
+  gpio_mode(GPIO_11, GPIO_OUTPUT); //BLUE
 
-//Setup GPIO_6 for PWM output
-gpio_mode(GPIO_6, GPIO_OUTPUT);
+  //Setup GPIO_6 for PWM output
+  gpio_mode(GPIO_6, GPIO_OUTPUT);
 
-ser_printf("System Initialized");
+  ser_printf("System Initialized");
 }
 
 /******************************************************************************
@@ -116,39 +127,23 @@ ser_printf("System Initialized");
  *          setup() has been executed and system is initialized
  *      Post condition: 
  *          Performs a single iteration of the system's function
- *          Repeates indefinetely unless the board is reset or powered off
+ *          Repeats indefinitely unless the board is reset or powered off
  *******************************************************************************/
-void loop() 
-{
-// Task-4: 
-// Setup simulated code for the angles from the lab sheet
-int angle_values[11] = {10, 25, 75, 45, 100, 40, 125, 15, 150, 50, 170};
+void loop() {
+  // Task-4: 
+  // Setup simulated code for the angles from the lab sheet
+  int angle_values[11] = {10, 25, 75, 45, 100, 40, 125, 15, 150, 50, 170};
 
-// Task-1&2:
-// Receive data from arudino1 for the distance and setup the LEDs
-auto_brake();
+  // Task-1&2:
+  // Receive data from arduino1 for the distance and setup the LEDs
+  auto_brake();
 
-//  Task-4:
-for (int i = 0; i < 11; i++)
-  {
-  // Here, we set the angle to 180 if the prediction from the DNN is a positive angle
-  // and 0 if the prediction is a negative angle.
-  // This is so that it is easier to see the movement of the servo.
-  // You are welcome to pass the angle values directly to the steering function.
-  // If the servo function is written correctly, it should still work,
-  // only the movements of the servo will be more subtle
-  if( angle_values[i] > 0 )
-    {
-    steering(180);
-    }
-  else 
-    {
-    steering(0);
-    }
-           
-  // Uncomment the line below to see the actual angles on the servo.
-  // Remember to comment out the if-else statement above!
-  // steering(angle);
+  // Task-4:
+  // Cycle through angle values for the servo motor
+  // TODO: need to make sure we are still monitoring lidar from arduino1
+  //       while the program continues to steer 
+  for (int i = 0; i < 11; i++){
+    steering(angle_values[i]);
   }
   //FOR THE PRESENTATION: MOST IMPORTANT PART IS WHAT WOULD I ADD IN THE FUTURE
 }
