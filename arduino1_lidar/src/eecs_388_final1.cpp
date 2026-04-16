@@ -63,9 +63,18 @@ void loop() {
         } else {
             ser_printline("Checksum Failed");
         }
+
         //Send distance to Arduino 2
-        ser_write(dataFrame[2]);
-        ser_write(dataFrame[3]);
+        //STATE MACHINE
+        if(dist > 200){
+            ser_write(0xA4);
+        } else if (dist > 100) {
+            ser_write(0xA3);
+        } else if (dist > 60) {
+            ser_write(0xA2);
+        } else if (dist < 60) {
+            ser_write(0xA1);
+        }
     }
     return;
 }
