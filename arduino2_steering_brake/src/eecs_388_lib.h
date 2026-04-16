@@ -53,6 +53,13 @@ void ser_printline(const char *str);
 char ser_read();
 void ser_write(const char c);
 void uart_init();
+//interrupts
+uint16_t get_cycles(void);
+void set_cycles(uint16_t cycle);
+void enable_interrupt(void);
+void disable_interrupt(void);
+void enable_timer_interrupt(void);
+void disable_timer_interrupt(void);
 
 #ifdef __cplusplus
 }
