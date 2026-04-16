@@ -273,6 +273,39 @@ uint8_t i2c_read_nack(void) {
 }
 
 /******************************************************************************
+ *  Timer Interrupt Functions
+ *******************************************************************************/
+
+uint16_t get_cycles(void) {
+	return TCNT1;
+}
+
+void set_cycles(uint16_t cycle) {
+	TCNT1 = 0; // clear timer counter
+	OCR1A = cycle; // compare match value
+}
+
+void enable_interrupt(void) {
+	sei(); // set SREG I-bit
+}
+
+void disable_interrupt(void) {
+	cli(); // clear SREG I-bit
+}
+
+void enable_timer_interrupt(void) {
+	TCCR1A = 0; // clear TCCR1A
+
+	TCCR1B = (1 << WGM12) | (1 << CS12); // set CTC mode (WGM12), and prescaler to 256 (CS12)
+
+	TIMSK1 |= (1 << OCIE1A); // allow Timer1 to trigger an interrupt when it hits OCR1A
+}
+
+void disable_timer_interrupt(void) {
+	TIMSK1 &= ~(1 << OCIE1A);
+}
+
+/******************************************************************************
  *   Function: scan_i2c_bus() - Scan I2C Bus
  *      Pre condition: 
  *          Hardware must be properly connected (BMP180 sensors, etc.)
