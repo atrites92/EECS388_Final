@@ -41,8 +41,9 @@ volatile uint8_t led_state = 0;
 static void start_red_flash(){
   if (!red_flash_active){
     red_flash_active = 1;
-    led_state = 1;
+    led_state = 0;
     gpio_write(GPIO_13, OFF);
+    set_cycles(6250); //reset timer count
     enable_timer_interrupt();
   }
   return;
@@ -53,7 +54,7 @@ static void start_red_flash(){
  *   Function: stop_red_flash() - Disable red LED flashing
  *******************************************************************************/
 static void stop_red_flash(){
-  if (!red_flash_active){
+  if (red_flash_active){
     red_flash_active = 0;
     led_state = 0;
     disable_timer_interrupt();
